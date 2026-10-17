@@ -17,6 +17,7 @@ namespace Boy
 	class Image;
 	class Keyboard;
 	class Mouse;
+	class NetworkInterface;
 	class PersistenceLayer;
 	class ResourceLoader;
 	class ResourceManager;
@@ -69,6 +70,7 @@ namespace Boy
 		float getTime();
 
 		Graphics *getGraphics();
+		NetworkInterface *getNetworkInterface();
 		PersistenceLayer *getPersistenceLayer();
 		ResourceManager *getResourceManager();
 		ResourceLoader *getResourceLoader();
@@ -107,9 +109,11 @@ namespace Boy
 	protected:
 
         SDL_Window *mWindow;
+		SDL_GLContext mLoadingContext;
 
 		Game *mGame;
 		Graphics *mGraphics;
+		NetworkInterface *mNetworkInterface;
 		PersistenceLayer *mPersistenceLayer;
 		ResourceManager *mResourceManager;
 		ResourceLoader *mResourceLoader;

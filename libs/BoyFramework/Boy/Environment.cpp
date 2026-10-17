@@ -13,6 +13,7 @@
 #include "Game.h"
 #include "GamePad.h"
 #include "Graphics.h"
+#include "NetworkInterface.h"
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "SoundPlayer.h"
@@ -26,18 +27,30 @@
 
 using namespace Boy;
 
+struct ProcData {
+	Game *game;
+	SDL_Window *window;
+	SDL_GLContext glContext;
+};
+
 SDL_semaphore *gLoadingSemaphore;
 int loadingProc(void *data)
 {
-	Game *game = (Game*)data;
+	ProcData *procData = (ProcData*)data;
+	Game *game = (Game*)procData->game;
+	SDL_Window *window = (SDL_Window*)procData->window;
+	SDL_GLContext glContext = (SDL_GLContext)procData->glContext;
 
 	// create a locked semaphore for synchronizing with loading thread:
 	gLoadingSemaphore = SDL_CreateSemaphore(0);
+	SDL_GL_MakeCurrent(window, glContext);
 
 	// load the game:
 	game->load();
 
 	// unlock the loading semaphore:
+	SDL_GL_MakeCurrent(window, NULL);
+	delete procData;
 	SDL_SemPost(gLoadingSemaphore);
 
 	return 0;
@@ -77,6 +90,7 @@ void Environment::init(Boy::Game *game,
 	mResourceManager = new ResourceManager(mResourceLoader, mpCryptoKey);
 	mSoundPlayer = new SoundPlayer();
 	mPersistenceLayer = new PersistenceLayer(persFile, mpCryptoKey);
+	mNetworkInterface = new NetworkInterface();
 
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMECONTROLLER) == -1) { 
         printf("Could not initialize SDL: %s\n", SDL_GetError());
@@ -114,6 +128,14 @@ void Environment::init(Boy::Game *game,
         printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
         exit(1);
     }
+
+	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+	mLoadingContext = SDL_GL_CreateContext(mWindow);
+	if (mLoadingContext == NULL)
+	{
+		printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
+		exit(1);
+	}
 
     SDL_GL_MakeCurrent(mWindow, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -174,6 +196,7 @@ void Environment::destroy()
 	}
 
 	delete mGraphics; mGraphics = NULL;
+	delete mNetworkInterface; mNetworkInterface = NULL;
 	delete mPersistenceLayer; mPersistenceLayer = NULL;
 	delete mResourceManager; mResourceManager = NULL;
 	delete mResourceLoader; mResourceLoader = NULL;
@@ -190,7 +213,11 @@ void Environment::startMainLoop()
     mGame->preInitLoad();
     mGame->init();
     gLoadingSemaphore = NULL;
-    SDL_CreateThread(loadingProc, NULL, mGame);
+	ProcData *procData = new ProcData();
+	procData->game = mGame;
+	procData->glContext = mLoadingContext;
+	procData->window = mWindow;
+    SDL_CreateThread(loadingProc, NULL, procData);
 
     //timing
 	mT0 = SDL_GetTicks();
@@ -405,7 +432,7 @@ bool Environment::isShuttingDown()
 
 void Environment::showError(const std::string &message)
 {
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Message from World of Goo Corporation",message.c_str(),mWindow);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error",message.c_str(),mWindow);
 }
 
 bool Environment::isFullScreen()
@@ -443,10 +470,13 @@ void Environment::setupGL()
 	int wW;
 	int wH;
 	SDL_GetWindowSize(mWindow, &wW, &wH);
-
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0, sW, sH, 0.0, 1.0, -1.0);
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	SDL_GL_SwapWindow(mWindow);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	float screenAspect = (float)sW / (float)sH;
 	float windowAspect = (float)wW / (float)wH;
@@ -463,6 +493,7 @@ void Environment::setupGL()
 		vY = (wH - vH) / 2;
 	}
 	glViewport(vX, vY, vW, vH);
+	glScissor(vX, vY, vW, vH);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -588,6 +619,10 @@ float Environment::getTime()
 Graphics *Environment::getGraphics()
 {
 	return mGraphics;
+}
+NetworkInterface *Environment::getNetworkInterface()
+{
+	return mNetworkInterface;
 }
 PersistenceLayer *Environment::getPersistenceLayer()
 {

@@ -64,15 +64,14 @@ void Demo2::destroy()
 
 void Demo2::init()
 {
+
+}
+
+void Demo2::load()
+{
 	Boy::ResourceManager *rm = Boy::Environment::instance()->getResourceManager();
-	rm->parseResourceFile("res/resources.xml");
+	rm->parseResourceFile("res/properties/resources.xml");
 	rm->loadResourceGroup("common");
-	mShipImage = rm->getImage("IMAGE_SHIP");
-	mThrustImage = rm->getImage("IMAGE_THRUST");
-	mFont = rm->getFont("FONT_MAIN");
-	mBoomSound = rm->getSound("SOUND_BOOM");
-	mFireSound = rm->getSound("SOUND_FIRE");
-	mThrustSound = rm->getSound("SOUND_THRUST");
 
 	Boy::PersistenceLayer *pl = Boy::Environment::instance()->getPersistenceLayer();
 	std::string score = pl->getString("score");
@@ -102,6 +101,7 @@ void Demo2::preShutdown()
 
 void Demo2::loadComplete()
 {
+	envDebugLog("load complete");
 	// start listening to the keyboard / gamepad:
 	Boy::Environment::instance()->getKeyboard(0)->addListener(this);
 	Boy::Environment::instance()->getGamePad(0)->addListener(this);
@@ -111,6 +111,13 @@ void Demo2::loadComplete()
 	mLoadComplete = true;
 
 	// fetch whatever resources we need:
+	Boy::ResourceManager *rm = Boy::Environment::instance()->getResourceManager();
+	mShipImage = rm->getImage("IMAGE_SHIP");
+	mThrustImage = rm->getImage("IMAGE_THRUST");
+	mFont = rm->getFont("FONT_MAIN");
+	mBoomSound = rm->getSound("SOUND_BOOM");
+	mFireSound = rm->getSound("SOUND_FIRE");
+	mThrustSound = rm->getSound("SOUND_THRUST");
 }
 
 void Demo2::nextLevel()
