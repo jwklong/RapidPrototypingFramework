@@ -24,7 +24,7 @@ namespace Boy
             WORLD_COORDS
         };
 
-        SceneObject(std::string id, float depth);
+        SceneObject(const std::string &id, float depth);
         SceneObject(const SceneObject &original);
         virtual ~SceneObject();
 
@@ -38,12 +38,17 @@ namespace Boy
         bool isVisible() { return mIsVisible; }
         bool isTransient() { return mIsTransient; }
 
-        virtual void mouseDown(Mouse *mouse, Vector2 point, Mouse::Button button) {}
-        virtual void mouseUp(Mouse *mouse, Vector2 point, Mouse::Button button) {}
-        virtual void mouseMove(Mouse *mouse, Vector2 point) {}
+        virtual void mouseDown(Mouse *mouse, const BoyLib::Vector2 &point, Mouse::Button button) {}
+        virtual void mouseUp(Mouse *mouse, const BoyLib::Vector2 &point, Mouse::Button button) {}
+        virtual void mouseMove(Mouse *mouse, const BoyLib::Vector2 &point) {}
         virtual void mouseEnter(Mouse *mouse) {}
         virtual void mouseLeave(Mouse *mouse) {}
 
+        //impl of cloneable
+        virtual BoyLib::Cloneable *clone(std::map<BoyLib::Cloneable*,BoyLib::Cloneable*> *cloneMap);
+
+        //impl of tickable
+        virtual bool tick();
 
     protected:
         std::string mId;

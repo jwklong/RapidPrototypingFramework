@@ -5,7 +5,7 @@
 
 using namespace Boy;
 
-SceneObject::SceneObject(std::string id, float depth)
+SceneObject::SceneObject(const std::string &id, float depth)
 {
     mId = id;
     mDepth = depth;
@@ -80,6 +80,25 @@ bool SceneObject::contains(const BoyLib::Vector2 &vector)
     if (mBoundary != NULL)
     {
         return mBoundary->contains(rotate(vector - getPosition(), getAnchor()->getPosition(), -getRotation()));
+    }
+    return false;
+}
+
+BoyLib::Cloneable *SceneObject::clone(std::map<BoyLib::Cloneable*, BoyLib::Cloneable*> *cloneMap)
+{
+    SceneObject *clone = new SceneObject(*this);
+    if (cloneMap!=NULL)
+    {
+        (*cloneMap)[this] = clone;
+    }
+    return clone;
+}
+
+bool SceneObject::tick()
+{
+    if (mDrawable != NULL)
+    {
+        return mDrawable->tick();
     }
     return false;
 }
