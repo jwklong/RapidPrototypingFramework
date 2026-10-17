@@ -27,18 +27,30 @@
 
 using namespace Boy;
 
+struct ProcData {
+	Game *game;
+	SDL_Window *window;
+	SDL_GLContext glContext;
+};
+
 SDL_semaphore *gLoadingSemaphore;
 int loadingProc(void *data)
 {
-	Game *game = (Game*)data;
+	ProcData *procData = (ProcData*)data;
+	Game *game = (Game*)procData->game;
+	SDL_Window *window = (SDL_Window*)procData->window;
+	SDL_GLContext glContext = (SDL_GLContext)procData->glContext;
 
 	// create a locked semaphore for synchronizing with loading thread:
 	gLoadingSemaphore = SDL_CreateSemaphore(0);
+	SDL_GL_MakeCurrent(window, glContext);
 
 	// load the game:
 	game->load();
 
 	// unlock the loading semaphore:
+	SDL_GL_MakeCurrent(window, NULL);
+	delete procData;
 	SDL_SemPost(gLoadingSemaphore);
 
 	return 0;
@@ -117,6 +129,14 @@ void Environment::init(Boy::Game *game,
         exit(1);
     }
 
+	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+	mLoadingContext = SDL_GL_CreateContext(mWindow);
+	if (mLoadingContext == NULL)
+	{
+		printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
+		exit(1);
+	}
+
     SDL_GL_MakeCurrent(mWindow, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
 
@@ -193,7 +213,11 @@ void Environment::startMainLoop()
     mGame->preInitLoad();
     mGame->init();
     gLoadingSemaphore = NULL;
-    SDL_CreateThread(loadingProc, NULL, mGame);
+	ProcData *procData = new ProcData();
+	procData->game = mGame;
+	procData->glContext = mLoadingContext;
+	procData->window = mWindow;
+    SDL_CreateThread(loadingProc, NULL, procData);
 
     //timing
 	mT0 = SDL_GetTicks();

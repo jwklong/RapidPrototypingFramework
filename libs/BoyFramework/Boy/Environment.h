@@ -109,6 +109,7 @@ namespace Boy
 	protected:
 
         SDL_Window *mWindow;
+		SDL_GLContext mLoadingContext;
 
 		Game *mGame;
 		Graphics *mGraphics;

@@ -25,6 +25,7 @@ public:
 
 	// implementation of Game:
 	virtual void init();
+	virtual void load();
 	virtual void loadComplete();
 	virtual void preShutdown();
 	virtual void update(float dt);
