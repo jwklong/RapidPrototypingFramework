@@ -7,6 +7,7 @@
 #include "BoyLib/Tickable.h"
 #include "BoyLib/Vector2.h"
 #include "Drawable.h"
+#include "Mouse.h"
 
 namespace Boy
 {
@@ -36,6 +37,13 @@ namespace Boy
 
         bool isVisible() { return mIsVisible; }
         bool isTransient() { return mIsTransient; }
+
+        virtual void mouseDown(Mouse *mouse, Vector2 point, Mouse::Button button) {}
+        virtual void mouseUp(Mouse *mouse, Vector2 point, Mouse::Button button) {}
+        virtual void mouseMove(Mouse *mouse, Vector2 point) {}
+        virtual void mouseEnter(Mouse *mouse) {}
+        virtual void mouseLeave(Mouse *mouse) {}
+
 
     protected:
         std::string mId;
