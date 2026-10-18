@@ -11,6 +11,7 @@
 
 namespace Boy
 {
+    class Camera;
     class Graphics;
     class Scene;
 
