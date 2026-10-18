@@ -118,6 +118,25 @@ BoyLib::Vector2 Camera::screenToWorld(const BoyLib::Vector2 &screenPos, float de
     return relativePos + getPosition();
 }
 
+void Camera::tick(float dt)
+{
+    if (mVel != mTargetVel)
+    {
+        BoyLib::Vector2 diff = mTargetVel - mVel;
+        float distance = diff.magnitude();
+
+        if (dt * 0.25f <= distance)
+        {
+            BoyLib::Vector2 direction = diff.normalize();
+            mVel += diff.normalize() * dt * 0.25f;
+        }
+        else
+        {
+            mVel = mTargetVel;
+        }
+    }
+}
+
 BoyLib::Cloneable *Camera::clone(std::map<BoyLib::Cloneable*, BoyLib::Cloneable*> *cloneMap)
 {
     Camera *clone = new Camera(*this);
