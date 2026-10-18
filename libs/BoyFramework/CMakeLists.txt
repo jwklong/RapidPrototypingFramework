@@ -11,14 +11,19 @@ ${CMAKE_SOURCE_DIR}/libs/BoyFramework/Boy/)
 
 file(GLOB_RECURSE BOY_SOURCES "Boy/*.cpp")
 
+set(PHYSBOY_INCLUDES
+${CMAKE_SOURCE_DIR}/libs/BoyFramework/PhysBoy/)
+
+file(GLOB_RECURSE PHYSBOY_SOURCES "PhysBoy/*.cpp")
+
 find_package(CURL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(OpenGL REQUIRED)
 
-include_directories(${BOYLIB_INCLUDES} ${BOY_INCLUDES} external)
-add_library(BoyFramework STATIC ${BOYLIB_SOURCES} ${BOY_SOURCES})
+include_directories(${BOYLIB_INCLUDES} ${BOY_INCLUDES} ${PHYSBOY_INCLUDES} external)
+add_library(BoyFramework STATIC ${BOYLIB_SOURCES} ${BOY_SOURCES} ${PHYSBOY_SOURCES})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(BoyFramework PRIVATE $<$<CONFIG:Debug>:_DEBUG>)
