@@ -69,7 +69,7 @@ void SceneObject::handleAdd(Scene *scene)
     mScene = scene;
 }
 
-void SceneObject::handleRemove()
+void SceneObject::handleRemove(Scene *scene)
 {
     mScene = NULL;
 }

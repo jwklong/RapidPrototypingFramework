@@ -31,8 +31,8 @@ namespace Boy
 
         virtual void draw(Graphics *graphics, Camera *camera);
 
-        void handleAdd(Scene *scene);
-        void handleRemove();
+        virtual void handleAdd(Scene *scene);
+        virtual void handleRemove(Scene *scene);
 
         bool contains(const BoyLib::Vector2 &vector);
 
@@ -51,9 +51,11 @@ namespace Boy
         //impl of tickable
         virtual bool tick();
 
-    protected:
+    public:
         std::string mId;
         float mDepth;
+
+    protected:
         bool mIsOverlay;
         Drawable *mDrawable;
         bool mDeleteDrawableOnDestruction;

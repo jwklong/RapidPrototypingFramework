@@ -2,8 +2,15 @@
 
 namespace Boy
 {
+    class Scene;
+
     class SceneListener
     {
-        //TODO: no idea what this does someone figure it out
+    public:
+        SceneListener() {}
+        virtual ~SceneListener() {}
+
+        virtual void addedToScene(Scene *scene);
+        virtual void removedFromScene(Scene *scene);
     };
 }

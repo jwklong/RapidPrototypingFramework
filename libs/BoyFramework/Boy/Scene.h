@@ -19,13 +19,20 @@ namespace Boy
         Scene(std::string id, bool withSimulation);
         ~Scene();
 
+        void addObject(SceneObject *object);
+        void removeObject(SceneObject *object);
+
         //impl of cloneable
         virtual BoyLib::Cloneable *clone(std::map<BoyLib::Cloneable*,BoyLib::Cloneable*> *cloneMap);
         virtual void remap(std::map<Cloneable*,Cloneable*> &cloneMap);
 
-    private:
+    protected:
+        void bubbleSortPass();
+
+    public:
         std::string mId;
 
+    private:
         Camera *mCamera;
         std::vector<SceneObject*> mObjects;
         std::map<std::string, SceneObject*> mObjectsById;
