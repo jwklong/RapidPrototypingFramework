@@ -24,17 +24,20 @@ namespace Boy
         //impl of cloneable
         virtual BoyLib::Cloneable *clone(std::map<BoyLib::Cloneable*,BoyLib::Cloneable*> *cloneMap);
 
+    public:
+        float mBaseZoom;
+
+        BoyLib::Vector2 mVel;
+        BoyLib::Vector2 mOffset;
+
     private:
         float mZoom;
-        float mBaseZoom;
         float mFov;
         float mZoomMin;
         float mZoomMax;
 
-        BoyLib::Vector2 mOffset;
         BoyLib::Vector2 mOffsetPositionRegister;
 
         BoyLib::Vector2 mTargetVel;
-        BoyLib::Vector2 mVel;
     };
 }

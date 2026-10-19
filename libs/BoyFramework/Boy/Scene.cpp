@@ -101,6 +101,120 @@ void Scene::removeObject(SceneObject *object)
     }
 }
 
+void Scene::addAutoBounds(float minX, float maxX, float minY, float maxY)
+{
+    if (minX < mAutoMinX) mAutoMinX = minX;
+    if (maxX > mAutoMaxX) mAutoMaxX = maxX;
+    if (minY < mAutoMinY) mAutoMinY = minY;
+    if (maxY > mAutoMaxY) mAutoMaxY = maxY;
+}
+
+bool Scene::boundsContain(const BoyLib::Vector2 &pos)
+{
+    float minX = mMinX;
+    float maxX = mMaxX;
+    float minY = mMinY;
+    float maxY = mMaxY;
+
+    if (mAutoboundsEnabled)
+    {
+        if (mAutoMinX < mAutoMaxX)
+        {
+            if (minX < mAutoMinX) minX = mAutoMinX;
+            if (maxX > mAutoMaxX) maxX = mAutoMaxX;
+        }
+        if (mAutoMinY < mAutoMaxY)
+        {
+            if (minY < mAutoMinY) minY = mAutoMinY;
+            if (maxY > mAutoMaxY) maxY = mAutoMaxY;
+        }
+    }
+
+    return (pos.x >= minX && pos.x <= maxX && pos.y >= minY && pos.y <= maxY);
+}
+
+void Scene::ensureCameraInBounds(bool force)
+{
+    if (Environment::instance()->isDebugEnabled())
+    {
+        return;
+    }
+
+    float minX = mMinX;
+    float maxX = mMaxX;
+    float minY = mMinY;
+    float maxY = mMaxY;
+
+    if (mAutoboundsEnabled && !force)
+    {
+        if (mAutoMinX < mAutoMaxX)
+        {
+            if (minX < mAutoMinX) minX = mAutoMinX;
+            if (maxX > mAutoMaxX) maxX = mAutoMaxX;
+        }
+        if (mAutoMinY < mAutoMaxY)
+        {
+            if (minY < mAutoMinY) minY = mAutoMinY;
+            if (maxY > mAutoMaxY) maxY = mAutoMaxY;
+        }
+    }
+
+    Graphics *graphics = Environment::instance()->getGraphics();
+
+    // horizontal clamping
+    float halfWidth = (float)graphics->getWidth() / mCamera->getZoom() * 0.5f;
+    BoyLib::Vector2 camPos = mCamera->getPosition();
+    bool fitsRight = (camPos.x + halfWidth <= maxX);
+    if (camPos.x - halfWidth < minX) {
+        if (fitsRight) {
+            mCamera->setPosition(minX + halfWidth, camPos.y);
+            mCamera->mVel = BoyLib::Vector2(0.0f, mCamera->mVel.y);
+        }
+    } else if (!fitsRight) {
+        mCamera->setPosition(maxX - halfWidth, camPos.y);
+        mCamera->mVel = BoyLib::Vector2(0.0f, mCamera->mVel.y);
+    }
+
+    // vertical clamping
+    float halfHeight = (float)graphics->getHeight() / mCamera->getZoom() * 0.5f;
+    camPos = mCamera->getPosition();
+    float camY = camPos.y - mCamera->mOffset.y;
+    bool fitsBottom = (camY + halfHeight <= maxY);
+    if (camY - halfHeight < minY) {
+        if (fitsBottom) {
+            mCamera->setPosition(camPos.x, minY + halfHeight + mCamera->mOffset.y);
+            mCamera->mVel = BoyLib::Vector2(mCamera->mVel.x, 0.0f);
+        }
+    } else if (!fitsBottom) {
+        mCamera->setPosition(camPos.x, maxY - halfHeight + mCamera->mOffset.y);
+        mCamera->mVel = BoyLib::Vector2(mCamera->mVel.x, 0.0f);
+    }
+
+    // zoom aaah
+    BoyLib::Vector2 worldMin = mCamera->screenToWorld(BoyLib::Vector2(0.0f, 0.0f), 1.0f);
+    BoyLib::Vector2 worldMax = mCamera->screenToWorld(BoyLib::Vector2(graphics->getWidth(), graphics->getHeight()), 1.0f);
+    float baseZoom = mCamera->mBaseZoom;
+    float currentZoom = mCamera->getZoom();
+    float zoomRatio = currentZoom / baseZoom;
+    float targetZoom = zoomRatio;
+
+    if ((maxX - minX) < (worldMax.x - worldMin.x)) {
+        targetZoom = ((worldMax.x - worldMin.x) / (maxX - minX)) * zoomRatio;
+        mCamera->setZoom(targetZoom);
+    }
+    if ((maxY - minY) < (worldMax.y - worldMin.y)) {
+        float heightZoom = ((worldMax.y - worldMin.y) / (maxY - minY)) * zoomRatio;
+        if (targetZoom < heightZoom) {
+            targetZoom = heightZoom;
+            mCamera->setZoom(targetZoom);
+        }
+    }
+
+    if (!force) {
+        ensureCameraInBounds(true);
+    }
+}
+
 BoyLib::Cloneable *Scene::clone(std::map<BoyLib::Cloneable*, BoyLib::Cloneable*> *cloneMap)
 {
     Scene* clone = new Scene(mId, false);

@@ -518,6 +518,16 @@ void Environment::disableFullScreenToggle()
 	mFullScreenToggleDisableCount++;
 }
 
+bool Environment::isDebugEnabled()
+{
+	return mIsDebugEnabled;
+}
+
+void Environment::setDebugEnabled(bool enabled)
+{
+	mIsDebugEnabled = enabled;
+}
+
 Mouse *Environment::getFirstMouse()
 {
 	return mMice[0];

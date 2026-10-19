@@ -51,6 +51,9 @@ namespace Boy
 		void enableFullScreenToggle();
 		void disableFullScreenToggle();
 
+		bool isDebugEnabled();
+		void setDebugEnabled(bool enabled);
+
 		int getMouseCount();
 		Mouse *getMouse(int mouseId);
 		Mouse *getFirstMouse();
@@ -145,6 +148,8 @@ namespace Boy
 
 		GamePad *mGamePads[GAMEPAD_COUNT_MAX];
 		std::map<SDL_JoystickID,int> mInstanceIdToGamePadId;
+
+		bool mIsDebugEnabled;
 
 		unsigned char *mpCryptoKey;
 

@@ -22,6 +22,10 @@ namespace Boy
         void addObject(SceneObject *object);
         void removeObject(SceneObject *object);
 
+        void addAutoBounds(float minX, float maxX, float minY, float maxY);
+        bool boundsContain(const BoyLib::Vector2 &pos);
+        void ensureCameraInBounds(bool force);
+
         //impl of cloneable
         virtual BoyLib::Cloneable *clone(std::map<BoyLib::Cloneable*,BoyLib::Cloneable*> *cloneMap);
         virtual void remap(std::map<Cloneable*,Cloneable*> &cloneMap);

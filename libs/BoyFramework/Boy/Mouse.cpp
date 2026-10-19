@@ -246,7 +246,7 @@ bool Mouse::isInBounds()
 
 bool Mouse::isValidMouseCoord(float x, float y)
 {
-	Boy::Graphics *g = Boy::Environment::instance()->getGraphics();
+	Graphics *g = Boy::Environment::instance()->getGraphics();
 	int gw = g->getWidth();
 	int gh = g->getHeight();
 	if (x >= -gw/2 && x <= gw*3/2 &&

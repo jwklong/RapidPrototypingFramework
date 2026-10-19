@@ -42,7 +42,7 @@ const BoyLib::Vector2 &Camera::getPosition()
 
 float Camera::getZoom()
 {
-    Graphics *graphics = Boy::Environment::gInstance->getGraphics();
+    Graphics *graphics = Boy::Environment::instance()->getGraphics();
     int screenWidth = graphics->getWidth();
 
     return (float)screenWidth / (mDepth * 2 * tanf(mFov * 0.5f));
@@ -64,7 +64,7 @@ void Camera::setZoom(float zoom)
 
 void Camera::updateFov()
 {
-    Graphics *graphics = Boy::Environment::gInstance->getGraphics();
+    Graphics *graphics = Boy::Environment::instance()->getGraphics();
     int screenWidth = graphics->getWidth();
 
     mFov = atanf((float)(screenWidth / 2) / mDepth / (mZoom * mBaseZoom)) * 2;
@@ -74,7 +74,7 @@ bool Camera::canSee(const BoyLib::Vector2 &worldPos, float depthFactor, float pa
 {
     BoyLib::Vector2 screenPos = worldToScreen(worldPos, depthFactor);
 
-    Graphics *graphics = Boy::Environment::gInstance->getGraphics();
+    Graphics *graphics = Boy::Environment::instance()->getGraphics();
     float screenWidth = static_cast<float>(graphics->getWidth());
     float screenHeight = static_cast<float>(graphics->getHeight());
 
@@ -86,7 +86,7 @@ bool Camera::canSee(const BoyLib::Vector2 &worldPos, float depthFactor, float pa
 
 BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldPos, float depthFactor)
 {
-    Graphics *graphics = Boy::Environment::gInstance->getGraphics();
+    Graphics *graphics = Boy::Environment::instance()->getGraphics();
     int screenWidth = graphics->getWidth();
     int screenHeight = graphics->getHeight();
 
@@ -103,7 +103,7 @@ BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldPos, float dep
 
 BoyLib::Vector2 Camera::screenToWorld(const BoyLib::Vector2 &screenPos, float depthFactor)
 {
-    Graphics *graphics = Boy::Environment::gInstance->getGraphics();
+    Graphics *graphics = Boy::Environment::instance()->getGraphics();
     int screenWidth = graphics->getWidth();
     int screenHeight = graphics->getHeight();
 
