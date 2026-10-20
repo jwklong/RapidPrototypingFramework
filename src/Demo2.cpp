@@ -101,7 +101,7 @@ void Demo2::preShutdown()
 
 void Demo2::loadComplete()
 {
-	envDebugLog("load complete");
+	envDebugLog("load complete\n");
 	// start listening to the keyboard / gamepad:
 	Boy::Environment::instance()->getKeyboard(0)->addListener(this);
 	Boy::Environment::instance()->getGamePad(0)->addListener(this);
