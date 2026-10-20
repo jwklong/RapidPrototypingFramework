@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include <assert.h>
 #include <float.h>
 #include "Camera.h"
 #include "Environment.h"
@@ -81,7 +82,8 @@ void Scene::addObject(SceneObject *object)
 void Scene::removeObject(SceneObject *object)
 {
     auto vectorIt = std::find(mObjects.begin(), mObjects.end(), object);
-    if (vectorIt != mObjects.end()) {
+    if (vectorIt != mObjects.end())
+    {
         mObjects.erase(vectorIt);
     }
 
@@ -99,6 +101,61 @@ void Scene::removeObject(SceneObject *object)
     {
         mListener->removedFromScene(this);
     }
+}
+
+void Scene::handleDepthChanged(SceneObject* object)
+{
+    auto it = std::find(mObjects.begin(), mObjects.end(), object);
+    if (it != mObjects.end()) {
+        mObjects.erase(it);
+    }
+    mObjects.push_back(object);
+    bubbleSortPass();
+}
+
+SceneObject *Scene::getObjectById(std::string id)
+{
+    assert(mObjectsById.find(id)!=mObjectsById.end());
+    return mObjectsById[id];
+}
+
+SceneObject *Scene::getObjectAt(const BoyLib::Vector2 &point)
+{
+    SceneObject* bestMatch = nullptr;
+
+    for (int i = 0; i < mObjects.size(); i++)
+    {
+        SceneObject* object = mObjects[i];
+
+        if (!object->isVisible())
+        {
+            continue;
+        }
+
+        BoyLib::Vector2 targetPos = point;
+        if (object->mContext == SceneObject::WORLD_COORDS) {
+            targetPos = mCamera->screenToWorld(point, object->mDepth);
+        }
+
+        if (object->contains(targetPos)) {
+            bool shouldReplace = false;
+            if (!bestMatch) {
+                shouldReplace = true;
+            } else if (!bestMatch->mIsOverlay && object->mIsOverlay) {
+                shouldReplace = true;
+            } else if (bestMatch->mIsOverlay == object->mIsOverlay) {
+                if (bestMatch->mDepth < object->mDepth) {
+                    shouldReplace = true;
+                }
+            }
+
+            if (shouldReplace) {
+                bestMatch = object;
+            }
+        }
+    }
+
+    return bestMatch;
 }
 
 void Scene::addAutoBounds(float minX, float maxX, float minY, float maxY)
@@ -215,6 +272,92 @@ void Scene::ensureCameraInBounds(bool force)
     }
 }
 
+void Scene::tick(float dt)
+{
+    if (dt != 0.0f)
+    {
+        if (mSimulation)
+        {
+            // mSimulation->step(dt);
+        }
+
+        for (int i = mObjects.size() - 1; i >= 0; i--) // go backwards
+        {
+            SceneObject* obj = mObjects[i];
+
+            if (obj->tick()) {
+                removeObject(obj);
+
+                delete obj;
+            }
+        }
+    }
+}
+
+void Scene::draw(Graphics *graphics, float minDepth, float maxDepth, bool inclusive)
+{
+    for (int i = 0; i < mObjects.size(); i++)
+    {
+        SceneObject *object = mObjects[i];
+
+        if (object->mIsOverlay)
+        {
+            continue;
+        }
+
+        if (maxDepth < object->mDepth) // exit out loop since depth will only increase from here
+        {
+            return;
+        }
+
+        if (minDepth <= object->mDepth)
+        {
+            if (inclusive || (object->mDepth != minDepth && object->mDepth != maxDepth))
+            {
+                if (object->isVisible())
+                {
+                    object->draw(graphics, mCamera);
+                }
+            }
+        }
+    }
+}
+
+void Scene::drawOverlays(Graphics *graphics)
+{
+    for (int i = 0; i < mObjects.size(); i++)
+    {
+        SceneObject *object = mObjects[i];
+
+        if (object->mIsOverlay)
+        {
+            object->draw(graphics, mCamera);
+        }
+    }
+}
+
+void Scene::drawOverlays2(Graphics *graphics)
+{
+    for (int i = 0; i < mObjects.size(); i++)
+    {
+        SceneObject *object = mObjects[i];
+
+        if (object->mIsOverlay2)
+        {
+            object->draw(graphics, mCamera);
+        }
+    }
+}
+
+float Scene::getMinY()
+{
+    if (mAutoboundsEnabled && mAutoMinY < mAutoMaxY && mAutoMinY > mMinY)
+    {
+        return mAutoMinY;
+    }
+    return mMinY;
+}
+
 BoyLib::Cloneable *Scene::clone(std::map<BoyLib::Cloneable*, BoyLib::Cloneable*> *cloneMap)
 {
     Scene* clone = new Scene(mId, false);
@@ -291,7 +434,7 @@ void Scene::bubbleSortPass()
     SceneObject* addedObject = mObjects.back();
     int size = mObjects.size();
 
-    for (int i = size - 2; i >= 0; --i) {
+    for (int i = size - 2; i >= 0; i--) {
         if (addedObject->mDepth < mObjects[i]->mDepth) {
             mObjects[i + 1] = mObjects[i];
             mObjects[i] = addedObject;

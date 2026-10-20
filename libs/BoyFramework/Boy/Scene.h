@@ -21,10 +21,21 @@ namespace Boy
 
         void addObject(SceneObject *object);
         void removeObject(SceneObject *object);
+        void handleDepthChanged(SceneObject *object);
+
+        SceneObject *getObjectById(std::string id);
+        SceneObject *getObjectAt(const BoyLib::Vector2 &point);
 
         void addAutoBounds(float minX, float maxX, float minY, float maxY);
         bool boundsContain(const BoyLib::Vector2 &pos);
         void ensureCameraInBounds(bool force);
+
+        void tick(float dt);
+        void draw(Graphics *graphics, float minDepth, float maxDepth, bool inclusive);
+        void drawOverlays(Graphics *graphics);
+        void drawOverlays2(Graphics *graphics);
+
+        float getMinY();
 
         //impl of cloneable
         virtual BoyLib::Cloneable *clone(std::map<BoyLib::Cloneable*,BoyLib::Cloneable*> *cloneMap);
