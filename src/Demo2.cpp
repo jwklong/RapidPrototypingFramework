@@ -41,7 +41,6 @@ Demo2::~Demo2()
 {
 	// stop listening to the keyboard:
 	Boy::Environment::instance()->getKeyboard(0)->removeListener(this);
-	Boy::Environment::instance()->getGamePad(0)->removeListener(this);
 }
 
 Demo2 *Demo2::instance()
@@ -64,11 +63,11 @@ void Demo2::destroy()
 
 void Demo2::init()
 {
-
 }
 
 void Demo2::load()
 {
+	// load the common resource group:
 	Boy::ResourceManager *rm = Boy::Environment::instance()->getResourceManager();
 	rm->parseResourceFile("res/properties/resources.xml");
 	rm->loadResourceGroup("common");
@@ -101,7 +100,6 @@ void Demo2::preShutdown()
 
 void Demo2::loadComplete()
 {
-	envDebugLog("load complete");
 	// start listening to the keyboard / gamepad:
 	Boy::Environment::instance()->getKeyboard(0)->addListener(this);
 	Boy::Environment::instance()->getGamePad(0)->addListener(this);
@@ -309,8 +307,6 @@ void Demo2::draw(Boy::Graphics *g)
 {
 	mDrawCount++;
 
-	//return;
-
 	if (mShip!=NULL)
 	{
 		bool invulnerable = Boy::Environment::instance()->getTime()-mLastRespawn < INVULNERABILITY_PERIOD;
@@ -325,8 +321,8 @@ void Demo2::draw(Boy::Graphics *g)
 			{
 				// draw the thruster image:
 				g->pushTransform();
-					g->translate(mShip->mPos.x,mShip->mPos.y);
 					g->rotateDeg(mShip->mRot);
+					g->translate(mShip->mPos.x,mShip->mPos.y);
 					g->drawImage(mThrustImage);
 				g->popTransform();
 				
@@ -384,20 +380,18 @@ void Demo2::draw(Boy::Graphics *g)
 		float x1 = (Boy::Environment::screenWidth() - mFont->getStringWidth(str1)) / 2.0f;
 		float x2 = (Boy::Environment::screenWidth() - mFont->getStringWidth(str2)*str2scale) / 2.0f;
 		g->pushTransform();
-		g->translate(x1, Boy::Environment::screenHeight()/2.0f - 50.0f);
-		mFont->drawString(g,str1);
+			g->translate(x1, Boy::Environment::screenHeight()/2.0f - 50.0f);
+			mFont->drawString(g,str1);
 		g->popTransform();
 		g->pushTransform();
-		g->translate(x2, Boy::Environment::screenHeight()/2.0f + 50.0f);
-		mFont->drawString(g,str2,0.5f);
+			g->translate(x2, Boy::Environment::screenHeight()/2.0f + 50.0f);
+			mFont->drawString(g,str2,0.5f);
 		g->popTransform();
-    }
+	}
 }
 
 void Demo2::keyUp(wchar_t unicode, Boy::Keyboard::Key key, Boy::Keyboard::Modifiers mods)
 {
-	if (Boy::Environment::instance()->getGamePad(0)->isConnected()) return;
-
 	switch (key)
 	{
 		case Boy::Keyboard::KEY_LEFT:
@@ -433,8 +427,6 @@ void Demo2::gamePadButtonUp(Boy::GamePad *pad, Boy::GamePad::Button button)
 
 void Demo2::keyDown(wchar_t unicode, Boy::Keyboard::Key key, Boy::Keyboard::Modifiers mods)
 {
-	if (Boy::Environment::instance()->getGamePad(0)->isConnected()) return;
-
 	switch (key)
 	{
 		case Boy::Keyboard::KEY_ESCAPE:
