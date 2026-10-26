@@ -11,6 +11,8 @@
 
 namespace Boy
 {
+	using BoyLib::UString;
+
 	class Game;
 	class GamePad;
 	class Graphics;

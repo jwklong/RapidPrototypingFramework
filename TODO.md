@@ -1,12 +1,10 @@
 # To Do
-- [ ] MMMem and MemDbg debug function
-- [ ] MD5 hashing function
+- [ ] ~~MD5 hashing function~~
 - [ ] Localization
 - [ ] Config.txt
 - [ ] Better Refresh Rate implementation
 - [ ] Mute for audio
 - [ ] ui_inset
-- [ ] Actual resizable window
 - [ ] Scene and Camera function
 - [ ] PhysBoy (Physics)
 - [ ] SDL3 port
