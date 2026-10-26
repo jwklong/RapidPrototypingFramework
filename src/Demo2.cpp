@@ -150,6 +150,31 @@ void Demo2::nextLevel()
 
 void Demo2::update(float dt)
 {
+	// gamepad!!
+	Boy::GamePad *pad = Boy::Environment::instance()->getGamePad(0);
+	if (pad->isConnected())
+	{
+		mLeft = std::max(0.0f, -pad->getAnalogL().x);
+		mRight = std::max(0.0f, pad->getAnalogL().x);
+
+		if (pad->getTriggerR() > 0.5f && mGunArmed && !mGameOver && mShip!=NULL)
+		{
+			// add a bullet:
+			BoyLib::Vector2 vel = rotate(BoyLib::Vector2(0.0f,-BULLET_SPEED),-deg2rad(mShip->mRot));
+			mBullets.push_back(new Body(BULLET, mShip->mPos.x, mShip->mPos.y, vel.x, vel.y));
+
+			// make a sound:
+			Boy::Environment::playSound("SOUND_FIRE");
+
+			// gun is no longer armed:
+			mGunArmed = false;
+		}
+		else if (pad->getTriggerR() < 0.2f)
+		{
+			mGunArmed = true;
+		}
+	}
+
 	Boy::Graphics *g = Boy::Environment::instance()->getGraphics();
 	float w = (float)g->getWidth();
 	float h = (float)g->getHeight();
