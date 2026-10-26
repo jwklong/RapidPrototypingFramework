@@ -25,4 +25,3 @@ public:
 	BoyLib::Vector2 mParticleVelocities[NUM_PARTICLES];
 
 };
-

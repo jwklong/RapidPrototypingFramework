@@ -15,7 +15,7 @@ Explosion::Explosion(float x, float y, float radius)
 		mParticlePositions[i] = rotate(
 			BoyLib::Vector2(0, radius),
 			randf(0,6.28f));
-		mParticleVelocities[i] = 
+		mParticleVelocities[i] =
 			mParticlePositions[i].normalize() * randf(PARTICLE_MIN_SPEED, PARTICLE_MAX_SPEED);
 		mParticlePositions[i].x += x;
 		mParticlePositions[i].y += y;

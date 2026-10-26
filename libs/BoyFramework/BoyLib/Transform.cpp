@@ -13,13 +13,9 @@ void Transform::reset()
 {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            mMatrix[i][j] = 0.0f;
+            mMatrix[i][j] = i == j ? 1.0f : 0.0f;
         }
     }
-    
-    mMatrix[0][0] = 1.0f;
-    mMatrix[1][1] = 1.0f;
-    mMatrix[2][2] = 1.0f;
 }
 
 Transform Transform::clone() const
@@ -65,7 +61,7 @@ Vector2 Transform::applyTransform(float x, float y) const
     return Vector2(ox, oy);
 }
 
-void Transform::translate(float x, float y)
+void Transform::preTranslate(float x, float y)
 {
     Transform T;
 
@@ -75,14 +71,14 @@ void Transform::translate(float x, float y)
     mMatrix = multiply(T).mMatrix;
 }
 
-void Transform::preTranslate(float x, float y)
+void Transform::translate(float x, float y)
 {
     Transform a;
-    a.translate(x, y);
+    a.preTranslate(x, y);
     mMatrix = a.multiply(*this).mMatrix;
 }
 
-void Transform::scale(float x, float y)
+void Transform::preScale(float x, float y)
 {
     Transform T;
 
@@ -92,14 +88,14 @@ void Transform::scale(float x, float y)
     mMatrix = multiply(T).mMatrix;
 }
 
-void Transform::preScale(float x, float y)
+void Transform::scale(float x, float y)
 {
     Transform a;
-    a.scale(x, y);
+    a.preScale(x, y);
     mMatrix = a.multiply(*this).mMatrix;
 }
 
-void Transform::rotate(float radians)
+void Transform::preRotate(float radians)
 {
     float c = std::cos(-radians);
     float s = std::sin(-radians);
@@ -114,23 +110,23 @@ void Transform::rotate(float radians)
     mMatrix = multiply(T).mMatrix;
 }
 
-void Transform::rotate(float radians, const Vector2 &vec)
+void Transform::preRotate(float radians, const Vector2 &vec)
 {
     translate(vec.x, vec.y);
-    rotate(radians);
+    preRotate(radians);
     translate(-vec.x, -vec.y);
 }
 
-void Transform::preRotate(float radians)
+void Transform::rotate(float radians)
 {
     Transform a;
-    a.rotate(radians);
+    a.preRotate(radians);
     mMatrix = a.multiply(*this).mMatrix;
 }
 
-void Transform::preRotate(float radians, const Vector2 &vec)
+void Transform::rotate(float radians, const Vector2 &vec)
 {
     Transform a;
-    a.rotate(radians, vec);
+    a.preRotate(radians, vec);
     mMatrix = a.multiply(*this).mMatrix;
 }

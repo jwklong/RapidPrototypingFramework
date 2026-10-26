@@ -142,7 +142,7 @@ float Font::drawString(Graphics *g, const BoyLib::UString &str, float scale)
 	scale *= mScale;
 
 	BoyLib::Transform old1 = g->getTransform().clone();
-    g->getTransform().preScale(scale);
+    g->getTransform().scale(scale);
 
 	// iterate over all characters of the string:
 	FontChar *fcCurr = NULL;
@@ -177,7 +177,7 @@ float Font::drawString(Graphics *g, const BoyLib::UString &str, float scale)
 
 		// kearning value + half character width + prev char width:
 		float dx = kerning + fcCurr->width/2.0f + prevCharWidth/2.0f;
-		g->getTransform().translate(dx, 0);
+		g->getTransform().preTranslate(dx, 0);
 
 		// keep track of total width:
 		totalWidth += dx;

@@ -85,19 +85,19 @@ void Body::draw(Boy::Graphics *g)
 	_draw(g,pos); // center
 	pos.x += w;
 	_draw(g,pos); // right
-	pos.y += h; 
+	pos.y += h;
 	_draw(g,pos); // bottom right
-	pos.x -= w; 
+	pos.x -= w;
 	_draw(g,pos); // bottom
-	pos.x -= w; 
+	pos.x -= w;
 	_draw(g,pos); // bottom left
-	pos.y -= h; 
+	pos.y -= h;
 	_draw(g,pos); // left
-	pos.y -= h; 
+	pos.y -= h;
 	_draw(g,pos); // top left
-	pos.x += w; 
+	pos.x += w;
 	_draw(g,pos); // top
-	pos.x += w; 
+	pos.x += w;
 	_draw(g,pos); // top right
 	g->setDrawMode(Boy::Graphics::DRAWMODE_NORMAL);
 }
@@ -109,8 +109,8 @@ void Body::_draw(Boy::Graphics *g, BoyLib::Vector2 &pos)
 		return;
 	}
 	g->pushTransform();
-		g->translate(pos.x,pos.y);
 		g->rotateDeg(mRot);
+		g->translate(pos.x,pos.y);
 		g->drawImage(mImage);
 	g->popTransform();
 }
