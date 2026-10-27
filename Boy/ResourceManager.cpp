@@ -14,8 +14,19 @@
 #include "ResourceLoader.h"
 #include <string>
 #include <stdio.h>
+#include <filesystem>
 
 using namespace Boy;
+
+static std::string resolveResourcePath(const std::string &path)
+{
+    static const bool gameLayout = std::filesystem::is_directory("game/res");
+    if (gameLayout && path.rfind("res/", 0) == 0)
+    {
+        return "game/" + path;
+    }
+    return path;
+}
 
 ResourceManager::ResourceManager(ResourceLoader *loader, unsigned char *key)
 {
@@ -58,8 +69,10 @@ ResourceManager::~ResourceManager()
 
 bool ResourceManager::parseResourceFile(const std::string &fileName, unsigned char *key)
 {
+	std::string resFileName = resolveResourcePath(fileName);
+	
 	// if we've already loaded the fonts:
-	if (find(mParsedResourceFiles.begin(),mParsedResourceFiles.end(),fileName) != mParsedResourceFiles.end())
+	if (find(mParsedResourceFiles.begin(),mParsedResourceFiles.end(),resFileName) != mParsedResourceFiles.end())
 	{
 		// ignore this call:
 		return true;
@@ -69,7 +82,7 @@ bool ResourceManager::parseResourceFile(const std::string &fileName, unsigned ch
 
 	if (key==NULL)
 	{
-		bool success = doc.LoadFile(fileName.c_str());
+		bool success = doc.LoadFile(resFileName.c_str());
 		if (!success)
 		{
 			return false;
@@ -78,7 +91,7 @@ bool ResourceManager::parseResourceFile(const std::string &fileName, unsigned ch
 	else
 	{
 		// adjust the filename to point to the encrypted version:
-		std::string encFileName = fileName;
+		std::string encFileName = resFileName;
 		if (key!=NULL)
 		{
 			encFileName.append(".bin");
@@ -95,7 +108,7 @@ bool ResourceManager::parseResourceFile(const std::string &fileName, unsigned ch
 
 		// parse it:
 		doc.Parse(data);
-		mParsedResourceFiles.push_back(fileName);
+		mParsedResourceFiles.push_back(resFileName);
 
 		// deallocate the mem:
 		delete[] data;
@@ -153,8 +166,7 @@ void ResourceManager::parseResourceGroup(TiXmlElement *elem)
 		else
 		{
 			std::string id = idPrefix + child->Attribute("id");
-			std::string fullPath = basePath;
-			fullPath.append(child->Attribute("path"));
+			std::string fullPath = resolveResourcePath(basePath + child->Attribute("path"));
 
 			// if this resource path already exists:
 			if (mResourcesByPath.find(fullPath)!=mResourcesByPath.end())
