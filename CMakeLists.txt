@@ -1,103 +1,49 @@
 cmake_minimum_required(VERSION 3.21...4.2)
-set(CMAKE_CXX_STANDARD 23)
 
-project(Asteroids VERSION 1.0 LANGUAGES CXX)
+option(BUILD_SHARED_LIBS "Build as a shared library" OFF)
+option(BUILD_DEMOS "Build the bundled demos" ON)
+
+project(BoyFramework VERSION 1.4 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-add_subdirectory(libs)
+file(GLOB_RECURSE BOYLIB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/BoyLib/*.cpp)
+file(GLOB_RECURSE BOY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Boy/*.cpp)
+file(GLOB_RECURSE PHYSBOY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/PhysBoy/*.cpp)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+find_package(CURL REQUIRED)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
+find_package(OpenGL REQUIRED)
 
-add_custom_target(ADD_RESOURCES ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-    ${PROJECT_SOURCE_DIR}/res
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res
-    COMMENT "Adding resources to build...")
+add_library(BoyFramework ${BOYLIB_SOURCES} ${BOY_SOURCES} ${PHYSBOY_SOURCES})
 
-add_executable(Asteroids ${SOURCES})
+target_include_directories(BoyFramework PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
-add_dependencies(Asteroids ADD_RESOURCES)
-
-target_include_directories(Asteroids PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/BoyFramework/
-    ${CMAKE_SOURCE_DIR}/libs/BoyFramework/Boy/
-    ${CMAKE_SOURCE_DIR}/libs/BoyFramework/BoyLib/
-    ${CMAKE_SOURCE_DIR}/libs/BoyFramework/external/)
-
-target_link_libraries(Asteroids PRIVATE BoyFramework)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(BoyFramework PRIVATE $<$<CONFIG:Debug>:_DEBUG>)
+endif()
 
 if (WIN32)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_link_options(Asteroids PRIVATE -static)
-    else()
-        target_link_options(Asteroids PRIVATE -static -mwindows)
-    endif()
+    target_link_libraries(BoyFramework PRIVATE CURL::libcurl SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_mixer::SDL2_mixer-static OpenGL::GL AES TinyXML)
+    target_compile_definitions(BoyFramework PRIVATE CURL_STATICLIB)
+else()
+    target_link_libraries(BoyFramework PRIVATE CURL::libcurl SDL2 SDL2_image SDL2_mixer OpenGL::GL AES TinyXML)
+    target_include_directories(BoyFramework PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS})
+endif()
 
-    set(REQUIRED_DLLS
-        libaom.dll
-        libavif-16.dll
-        libbrotlicommon.dll
-        libbrotlidec.dll
-        libbrotlienc.dll
-        libcrypto-3-x64.dll
-        libcurl-4.dll
-        libdav1d-7.dll
-        libdeflate.dll
-        libFLAC.dll
-        libgcc_s_seh-1.dll
-        libhwy.dll
-        libiconv-2.dll
-        libidn2-0.dll
-        libintl-8.dll
-        libjbig-0.dll
-        libjpeg-8.dll
-        libjxl.dll
-        libjxl_cms.dll
-        liblcms2-2.dll
-        libLerc.dll
-        liblzma-5.dll
-        libmpg123-0.dll
-        libnghttp2-14.dll
-        libnghttp3-9.dll
-        libngtcp2-16.dll
-        libngtcp2_crypto_ossl-0.dll
-        libogg-0.dll
-        libopus-0.dll
-        libopusfile-0.dll
-        libpng16-16.dll
-        libpsl-5.dll
-        librav1e.dll
-        libsharpyuv-0.dll
-        libssh2-1.dll
-        libssl-3-x64.dll
-        libstdc++-6.dll
-        libSvtAv1Enc-4.dll
-        libtiff-6.dll
-        libunistring-5.dll
-        libvorbis-0.dll
-        libvorbisfile-3.dll
-        libwavpack-1.dll
-        libwebp-7.dll
-        libwebpdemux-2.dll
-        libwinpthread-1.dll
-        libxmp.dll
-        libyuv.dll
-        libzstd.dll
-        zlib1.dll
-    )
+add_subdirectory(external)
 
-    get_filename_component(MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
-
-    set(DLL_PATHS "")
-    foreach(DLL_NAME ${REQUIRED_DLLS})
-        list(APPEND DLL_PATHS "${MINGW_BIN_DIR}/${DLL_NAME}")
-    endforeach()
-
-    add_custom_command(TARGET Asteroids POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${DLL_PATHS}
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-        COMMENT "Copying runtime DLLs..."
-    )
+if(BUILD_DEMOS)
+    add_subdirectory(demos)
 endif()
