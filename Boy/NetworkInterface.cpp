@@ -82,6 +82,8 @@ NetworkInterface::NetworkInterface()
 {
     mRequestProcessingMutex = SDL_CreateMutex();
     mRequestQueueMutex = SDL_CreateMutex();
+    mIsStopRequested = false;
+    mIsThreadRunning = false;
     curl_global_init(CURL_GLOBAL_ALL);
 }
 

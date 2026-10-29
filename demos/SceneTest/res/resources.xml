@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<ResourceManifest>
+    <Resources id="common">
+        <image id="IMAGE_CHECKERED" path="res/checkered"/>
+    </Resources>
+</ResourceManifest>

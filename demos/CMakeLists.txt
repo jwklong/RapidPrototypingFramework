@@ -1,2 +1,3 @@
 add_subdirectory(Asteroids)
 add_subdirectory(JoystickTest)
+add_subdirectory(SceneTest)

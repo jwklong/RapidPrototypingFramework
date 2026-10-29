@@ -44,14 +44,13 @@ namespace Boy
     protected:
         void bubbleSortPass();
 
-    public:
-        std::string mId;
-
     private:
-        Camera *mCamera;
         std::vector<SceneObject*> mObjects;
         std::map<std::string, SceneObject*> mObjectsById;
 
+    public:
+        std::string mId;
+        Camera *mCamera;
         PhysBoy::World *mSimulation;
 
         float mMinX;

@@ -53,13 +53,13 @@ namespace Boy
 
     public:
         std::string mId;
+        Drawable *mDrawable;
         float mDepth;
         bool mIsOverlay;
         bool mIsOverlay2;
         Context mContext;
 
     protected:
-        Drawable *mDrawable;
         bool mDeleteDrawableOnDestruction;
         bool mIsVisible;
         Scene *mScene;

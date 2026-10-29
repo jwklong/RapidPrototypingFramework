@@ -6,7 +6,7 @@
 
 using namespace Boy;
 
-Camera::Camera(const std::string &id) : SceneObject(id, 0)
+Camera::Camera(const std::string &id) : SceneObject(id, 800)
 {
     mOffset = BoyLib::Vector2(0, 0);
     mOffsetPositionRegister = BoyLib::Vector2(0, 0);
