@@ -1,14 +1,13 @@
 # To Do
-- [ ] ~~MD5 hashing function~~
 - [ ] Localization
-- [ ] Config.txt
-- [ ] Better Refresh Rate implementation
+- [ ] Documentation
+- [ ] config.txt
+- [ ] Better refresh rate implementation
 - [ ] Mute for audio
 - [ ] ui_inset
 - [ ] Scene and Camera function
 - [ ] PhysBoy (Physics)
 - [ ] SDL3 port
 - [ ] SoLoud audio implementation
-- [ ] Debug features (IMGUI, debug stats, and profiling)
-- [ ] Optional: Demo rework, pause menu, unhardcoding variables.
-- [ ] Crash dialog
+- [ ] Debug features (ImGui, debug stats, profiling, and crash handler)
+- [ ] Optional: Demo rework, pause menu, unhardcoding variables
