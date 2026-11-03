@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "BoyLib/Cloneable.h"
 #include "PhysBoy/World.h"
 #include "Graphics.h"
