@@ -90,10 +90,11 @@ BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldCoord, float d
     int screenWidth = graphics->getWidth();
     int screenHeight = graphics->getHeight();
 
-    float halfFovTan = tanf(mFov * 0.5f);
+    float scaleFactor = (float)screenWidth / (tanf(mFov * 0.5f) * 2.0f);
+    float worldCoordDist = mDepth - depth;
 
-    BoyLib::Vector2 relativePos = worldCoord - getPosition();
-    BoyLib::Vector2 projectPos = relativePos / (depth * halfFovTan);
+    BoyLib::Vector2 relativePos = getPosition() - worldCoord;
+    BoyLib::Vector2 projectPos = (relativePos * scaleFactor) / worldCoordDist;
 
     return BoyLib::Vector2(
         (float)screenWidth * 0.5f + projectPos.x,
@@ -107,15 +108,17 @@ BoyLib::Vector2 Camera::screenToWorld(const BoyLib::Vector2 &screenCoord, float 
     int screenWidth = graphics->getWidth();
     int screenHeight = graphics->getHeight();
 
-    float halfFovTan = tanf(mFov * 0.5f);
+    float scaleFactor = (float)screenWidth / (tanf(mFov * 0.5f) * 2.0f);
+    float worldCoordDist = mDepth - depth;
 
     BoyLib::Vector2 projectPos = BoyLib::Vector2(
-        screenCoord.x - (screenWidth * 0.5f),
-        (screenHeight * 0.5f) - screenCoord.y
+        screenCoord.x - ((float)screenWidth * 0.5f),
+        ((float)screenHeight * 0.5f) - screenCoord.y
     );
-    BoyLib::Vector2 relativePos = projectPos * depth;
 
-    return relativePos + getPosition();
+    BoyLib::Vector2 relativePos = (projectPos * worldCoordDist) / scaleFactor;
+
+    return getPosition() - relativePos;
 }
 
 void Camera::tick(float timestep)

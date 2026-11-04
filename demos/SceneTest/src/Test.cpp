@@ -56,17 +56,17 @@ void Test::loadComplete()
 {
     Boy::Environment::instance()->getKeyboard(0)->addListener(this);
 
-    Boy::SceneObject *objectA = new Boy::SceneObject("", 1);
+    Boy::SceneObject *objectA = new Boy::SceneObject("", 0);
     objectA->mDrawable = new CheckeredDrawable(1);
     objectA->setPosition(-100, 0);
     mScene->addObject(objectA);
 
-    Boy::SceneObject *objectB = new Boy::SceneObject("", 3);
+    Boy::SceneObject *objectB = new Boy::SceneObject("", -400);
     objectB->mDrawable = new CheckeredDrawable(0);
-    objectB->setPosition(300, 0);
+    objectB->setPosition(150, 0);
     mScene->addObject(objectB);
 
-    Boy::SceneObject *objectC = new Boy::SceneObject("", 1);
+    Boy::SceneObject *objectC = new Boy::SceneObject("", 0);
     objectC->mDrawable = new CheckeredDrawable(0);
     objectC->setPosition(50, 50);
     objectC->mIsOverlay = true;
@@ -87,7 +87,7 @@ void Test::update(float dt)
 
 void Test::draw(Boy::Graphics *g)
 {
-    mScene->draw(g, 0, 100, true);
+    mScene->draw(g, -400, 400, true);
     mScene->drawOverlays(g);
 }
 
