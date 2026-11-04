@@ -4,23 +4,23 @@
 
 using namespace Boy;
 
-HttpRequest::HttpRequest(const std::string &url, const std::string &host, HttpResponseHandler *handler)
+HttpRequest::HttpRequest(const std::string &resource, const std::string &host, HttpResponseHandler *handler)
 {
     mHost = host;
     mHandler = handler;
     mUseHttps = false;
     mTimeout = 0;
 
-    size_t queryPos = url.find_first_of('?');
+    size_t queryPos = resource.find_first_of('?');
     
     if (queryPos == std::string::npos)
     {
-        mResource = url;
+        mResource = resource;
     }
     else
     {
         std::vector<std::string> tokens;
-        tokenize(url, "?&=", tokens);
+        tokenize(resource, "?&=", tokens);
 
         if (!tokens.empty())
         {
@@ -71,16 +71,16 @@ const std::string HttpRequest::getParamString()
     return result;
 }
 
-void HttpRequest::setParam(const std::string &key, const std::string &value)
+void HttpRequest::setParam(const std::string &name, const std::string &value)
 {
-    mParams[key] = value;
+    mParams[name] = value;
 }
 
-void HttpRequest::setParam(const std::string &key, int value)
+void HttpRequest::setParam(const std::string &name, int value)
 {
     char buffer[32];
     snprintf(buffer, sizeof(buffer), "%d", value);
-    mParams[key] = buffer;
+    mParams[name] = buffer;
 }
 
 const std::string HttpRequest::getURL()

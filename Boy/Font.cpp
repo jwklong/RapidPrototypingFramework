@@ -137,12 +137,10 @@ int Font::getLineSpacing()
 	return (mLineSpacing>=0 ? mLineSpacing : mHeight) * mScale;
 }
 
-float Font::drawString(Graphics *g, const BoyLib::UString &str, float scale)
+float Font::drawString(Graphics *g, const Boy::UString &str, float scale)
 {
 	scale *= mScale;
-
-	BoyLib::Transform old1 = g->getTransform().clone();
-    g->getTransform().scale(scale);
+	g->pushTransform();
 
 	// iterate over all characters of the string:
 	FontChar *fcCurr = NULL;
@@ -176,22 +174,27 @@ float Font::drawString(Graphics *g, const BoyLib::UString &str, float scale)
 		}
 
 		// kearning value + half character width + prev char width:
-		float dx = kerning + fcCurr->width/2.0f + prevCharWidth/2.0f;
-		g->getTransform().preTranslate(dx, 0);
+		float dx = kerning + fcCurr->width/2.0f*scale + prevCharWidth;
+		g->preTranslate(dx, 0);
 
 		// keep track of total width:
 		totalWidth += dx;
 
 		// scale the char:
+		g->pushTransform();
+		// scale:
+		g->preScale(scale,scale);
+		// draw the character:
 		g->drawImage(mImage, fcCurr->subrect);
+		g->popTransform();
 
 		// remember the width we should increment by:
-		prevCharWidth = (fcCurr->width + mSpacing);
+		prevCharWidth = (fcCurr->width - fcCurr->width/2.0f + mSpacing) * scale;
 
 		// the current char is the new previous char:
 		fcPrev = fcCurr;
 	}
-	g->getTransform().set(old1);
+	g->popTransform();
 
 	totalWidth += prevCharWidth;
 

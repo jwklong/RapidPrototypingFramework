@@ -10,13 +10,13 @@ namespace Boy
 	class HttpRequest
 	{
 	public:
-		HttpRequest(const std::string &url, const std::string &host, HttpResponseHandler *handler);
+		HttpRequest(const std::string &resource, const std::string &host, HttpResponseHandler *handler);
         virtual ~HttpRequest();
 
         const std::string getParam(const std::string &key);
         const std::string getParamString();
-        void setParam(const std::string &key, const std::string &value);
-        void setParam(const std::string &key, int value);
+        void setParam(const std::string &name, const std::string &value);
+        void setParam(const std::string &name, int value);
 
         const std::string getURL();
 

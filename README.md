@@ -17,7 +17,7 @@
 
 - The font file format is that used by the Popcap
 Framework, which comes with a font builder tool. 
-- The resource manifest (resource.xml) also uses a simpliefied version of the format available in the Popcap Framework.
+- The resource manifest (resource.xml) also uses a simplified version of the format available in the Popcap Framework.
 - There is no documentation for this framework yet. There are inline comments that should help you if you're looking at the innards.
 - Persistence layer data is saved in `C:\Users\<username>\AppData\Local\Boy` in Windows, for Linux it will save on the directory the executable run as `save/`.
 
