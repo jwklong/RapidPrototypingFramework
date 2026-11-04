@@ -11,21 +11,21 @@ CheckeredDrawable::CheckeredDrawable(float rotSpeed)
     mRotation = 0;
 }
 
-void CheckeredDrawable::draw(Boy::Graphics *g, Boy::Camera *camera, Boy::SceneObject *object, bool ignoreCamera)
+void CheckeredDrawable::draw(Boy::Graphics *g, Boy::Camera *camera, Boy::SceneObject *anchor, bool inScreenSpace)
 {
     g->pushTransform();
 
     g->rotateDeg(mRotation);
-    if (ignoreCamera)
+    if (inScreenSpace)
     {
-        BoyLib::Vector2 pos = object->getPosition();
+        BoyLib::Vector2 pos = anchor->getPosition();
         g->translate(pos.x, pos.y);
     }
     else
     {
         float cameraZoom = camera->getZoom();
         g->scale(cameraZoom, cameraZoom);
-        BoyLib::Vector2 pos = camera->worldToScreen(object->getPosition(), object->mDepth);
+        BoyLib::Vector2 pos = camera->worldToScreen(anchor->getPosition(), anchor->mDepth);
         g->translate(pos.x, pos.y);
     }
 

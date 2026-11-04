@@ -15,7 +15,7 @@ namespace Boy
 		Drawable() {}
         virtual ~Drawable() {}
 
-        virtual void draw(Graphics *g, Camera *camera, SceneObject *object, bool ignoreCamera) = 0;
+        virtual void draw(Graphics *g, Camera *camera, SceneObject *anchor, bool inScreenSpace) = 0;
         virtual Drawable *clone() = 0;
 	};
 }

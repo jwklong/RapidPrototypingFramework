@@ -26,22 +26,26 @@ namespace Boy
         };
 
         SceneObject(const std::string &id, float depth);
-        SceneObject(const SceneObject &original);
+        SceneObject(const SceneObject &obj);
         virtual ~SceneObject();
 
-        virtual void draw(Graphics *graphics, Camera *camera);
+        virtual void draw(Graphics *g, Camera *camera);
 
         virtual void handleAdd(Scene *scene);
         virtual void handleRemove(Scene *scene);
 
-        bool contains(const BoyLib::Vector2 &vector);
+        bool contains(const BoyLib::Vector2 &coord);
 
         bool isVisible() { return mIsVisible; }
         bool isTransient() { return mIsTransient; }
 
-        virtual void mouseDown(Mouse *mouse, const BoyLib::Vector2 &point, Mouse::Button button) {}
-        virtual void mouseUp(Mouse *mouse, const BoyLib::Vector2 &point, Mouse::Button button) {}
-        virtual void mouseMove(Mouse *mouse, const BoyLib::Vector2 &point) {}
+        virtual void setContext(Context context);
+        virtual void setVisible(bool visible);
+        virtual void setTransient(bool transient);
+
+        virtual void mouseDown(Mouse *mouse, const BoyLib::Vector2 &pos, Mouse::Button theBtnNum) {}
+        virtual void mouseUp(Mouse *mouse, const BoyLib::Vector2 &pos, Mouse::Button theBtnNum) {}
+        virtual void mouseMove(Mouse *mouse, const BoyLib::Vector2 &pos) {}
         virtual void mouseEnter(Mouse *mouse) {}
         virtual void mouseLeave(Mouse *mouse) {}
 

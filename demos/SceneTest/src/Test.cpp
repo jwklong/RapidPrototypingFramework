@@ -70,7 +70,7 @@ void Test::loadComplete()
     objectC->mDrawable = new CheckeredDrawable(0);
     objectC->setPosition(50, 50);
     objectC->mIsOverlay = true;
-    objectC->mContext = Boy::SceneObject::SCREEN_COORDS;
+    objectC->setContext(Boy::SceneObject::SCREEN_COORDS);
     mScene->addObject(objectC);
 }
 
@@ -82,7 +82,7 @@ void Test::update(float dt)
         mScene->ensureCameraInBounds(false);
     }
 
-    mScene->tick(dt);
+    mScene->tick(1, dt, false);
 }
 
 void Test::draw(Boy::Graphics *g)

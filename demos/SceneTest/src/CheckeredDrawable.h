@@ -9,7 +9,7 @@ public:
     CheckeredDrawable(float rotSpeed);
 
     // impl of Boy::Drawable
-    virtual void draw(Boy::Graphics *g, Boy::Camera *camera, Boy::SceneObject *object, bool ignoreCamera);
+    virtual void draw(Boy::Graphics *g, Boy::Camera *camera, Boy::SceneObject *anchor, bool inScreenSpace);
     virtual CheckeredDrawable *clone();
 
     // impl of Boy::Tickable

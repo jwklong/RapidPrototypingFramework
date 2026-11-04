@@ -8,18 +8,18 @@ namespace Boy
     {
     public:
         Camera(const std::string &id);
-        Camera(const Camera &original);
+        Camera(const Camera &camera);
 
         const BoyLib::Vector2 &getPosition();
         float getZoom();
         void setZoom(float zoom);
         void updateFov();
 
-        bool canSee(const BoyLib::Vector2 &worldPos, float depthFactor, float padX, float padY);
-        BoyLib::Vector2 worldToScreen(const BoyLib::Vector2 &worldPos, float depthFactor);
-        BoyLib::Vector2 screenToWorld(const BoyLib::Vector2 &screenPos, float depthFactor);
+        bool canSee(const BoyLib::Vector2 &p, float depth, float marginH, float marginY);
+        BoyLib::Vector2 worldToScreen(const BoyLib::Vector2 &worldCoord, float depth);
+        BoyLib::Vector2 screenToWorld(const BoyLib::Vector2 &screenCoord, float depth);
 
-        void tick(float dt);
+        void tick(float timestep);
 
         //impl of cloneable
         virtual BoyLib::Cloneable *clone(std::map<BoyLib::Cloneable*,BoyLib::Cloneable*> *cloneMap);

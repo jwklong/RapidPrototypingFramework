@@ -19,27 +19,27 @@ SceneObject::SceneObject(const std::string &id, float depth)
     mDeleteDrawableOnDestruction = false;
 }
 
-SceneObject::SceneObject(const SceneObject &original) : BoyLib::Positionable(original)
+SceneObject::SceneObject(const SceneObject &obj) : BoyLib::Positionable(obj)
 {
-    mId = original.mId;
-    mDepth = original.mDepth;
-    mIsVisible = original.mIsVisible;
+    mId = obj.mId;
+    mDepth = obj.mDepth;
+    mIsVisible = obj.mIsVisible;
     mScene = NULL;
-    mIsOverlay = original.mIsOverlay;
-    mIsTransient = original.mIsTransient;
-    mContext = original.mContext;
-    mDeleteDrawableOnDestruction = original.mDeleteDrawableOnDestruction;
+    mIsOverlay = obj.mIsOverlay;
+    mIsTransient = obj.mIsTransient;
+    mContext = obj.mContext;
+    mDeleteDrawableOnDestruction = obj.mDeleteDrawableOnDestruction;
 
     mDrawable = NULL;
-    if (original.mDrawable != NULL)
+    if (obj.mDrawable != NULL)
     {
-        mDrawable = original.mDrawable->clone();
+        mDrawable = obj.mDrawable->clone();
     }
 
     mBoundary = NULL;
-    if (original.mBoundary)
+    if (obj.mBoundary)
     {
-        mBoundary = original.mBoundary->clone();
+        mBoundary = obj.mBoundary->clone();
     }
 }
 
@@ -56,11 +56,11 @@ SceneObject::~SceneObject()
     }
 }
 
-void SceneObject::draw(Graphics *graphics, Camera *camera)
+void SceneObject::draw(Graphics *g, Camera *camera)
 {
     if (mDrawable != NULL)
     {
-        mDrawable->draw(graphics, camera, this, mContext == SCREEN_COORDS);
+        mDrawable->draw(g, camera, this, mContext == SCREEN_COORDS);
     }
 }
 
@@ -74,14 +74,28 @@ void SceneObject::handleRemove(Scene *scene)
     mScene = NULL;
 }
 
-
-bool SceneObject::contains(const BoyLib::Vector2 &vector)
+bool SceneObject::contains(const BoyLib::Vector2 &coord)
 {
     if (mBoundary != NULL)
     {
-        return mBoundary->contains(rotate(vector - getPosition(), getAnchor()->getPosition(), -getRotation()));
+        return mBoundary->contains(rotate(coord - getPosition(), getAnchor()->getPosition(), -getRotation()));
     }
     return false;
+}
+
+void SceneObject::setContext(Context context)
+{
+    mContext = context;
+}
+
+void SceneObject::setVisible(bool visible)
+{
+    mIsVisible = visible;
+}
+
+void SceneObject::setTransient(bool transient)
+{
+    mIsTransient = transient;
 }
 
 BoyLib::Cloneable *SceneObject::clone(std::map<BoyLib::Cloneable*, BoyLib::Cloneable*> *cloneMap)

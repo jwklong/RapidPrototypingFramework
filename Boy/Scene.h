@@ -17,24 +17,24 @@ namespace Boy
     class Scene : public BoyLib::Cloneable
     {
     public:
-        Scene(std::string id, bool withSimulation);
+        Scene(std::string id, bool createSim);
         ~Scene();
 
         void addObject(SceneObject *object);
         void removeObject(SceneObject *object);
-        void handleDepthChanged(SceneObject *object);
+        void handleDepthChanged(SceneObject *obj);
 
-        SceneObject *getObjectById(std::string id);
-        SceneObject *getObjectAt(const BoyLib::Vector2 &point);
+        SceneObject *getObjectById(const std::string &id);
+        SceneObject *getObjectAt(const BoyLib::Vector2 &screenPos);
 
-        void addAutoBounds(float minX, float maxX, float minY, float maxY);
-        bool boundsContain(const BoyLib::Vector2 &pos);
-        void ensureCameraInBounds(bool force);
+        void addAutoBounds(float minx, float maxx, float miny, float maxy);
+        bool boundsContain(const BoyLib::Vector2 &point);
+        void ensureCameraInBounds(bool ignoreAutobounds);
 
-        void tick(float dt);
-        void draw(Graphics *graphics, float minDepth, float maxDepth, bool inclusive);
-        void drawOverlays(Graphics *graphics);
-        void drawOverlays2(Graphics *graphics);
+        void tick(float time, float stepSize, bool fastStep);
+        void draw(Graphics *g, float minDepth, float maxDepth, bool inclusive);
+        void drawOverlays(Graphics *g);
+        void drawOverlays2(Graphics *g);
 
         float getMinY();
 

@@ -70,21 +70,21 @@ void Camera::updateFov()
     mFov = atanf((float)(screenWidth / 2) / mDepth / (mZoom * mBaseZoom)) * 2;
 }
 
-bool Camera::canSee(const BoyLib::Vector2 &worldPos, float depthFactor, float padX, float padY)
+bool Camera::canSee(const BoyLib::Vector2 &p, float depth, float marginH, float marginY)
 {
-    BoyLib::Vector2 screenPos = worldToScreen(worldPos, depthFactor);
+    BoyLib::Vector2 screenPos = worldToScreen(p, depth);
 
     Graphics *graphics = Boy::Environment::instance()->getGraphics();
     float screenWidth = static_cast<float>(graphics->getWidth());
     float screenHeight = static_cast<float>(graphics->getHeight());
 
-    return (screenPos.x > -padX) &&
-        (screenPos.x < screenWidth + padX) &&
-        (screenPos.y > -padY) &&
-        (screenPos.y < screenHeight + padY);
+    return (screenPos.x > -marginH) &&
+        (screenPos.x < screenWidth + marginH) &&
+        (screenPos.y > -marginY) &&
+        (screenPos.y < screenHeight + marginY);
 }
 
-BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldPos, float depthFactor)
+BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldCoord, float depth)
 {
     Graphics *graphics = Boy::Environment::instance()->getGraphics();
     int screenWidth = graphics->getWidth();
@@ -92,8 +92,8 @@ BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldPos, float dep
 
     float halfFovTan = tanf(mFov * 0.5f);
 
-    BoyLib::Vector2 relativePos = worldPos - getPosition();
-    BoyLib::Vector2 projectPos = relativePos / (depthFactor * halfFovTan);
+    BoyLib::Vector2 relativePos = worldCoord - getPosition();
+    BoyLib::Vector2 projectPos = relativePos / (depth * halfFovTan);
 
     return BoyLib::Vector2(
         (float)screenWidth * 0.5f + projectPos.x,
@@ -101,7 +101,7 @@ BoyLib::Vector2 Camera::worldToScreen(const BoyLib::Vector2 &worldPos, float dep
     );
 }
 
-BoyLib::Vector2 Camera::screenToWorld(const BoyLib::Vector2 &screenPos, float depthFactor)
+BoyLib::Vector2 Camera::screenToWorld(const BoyLib::Vector2 &screenCoord, float depth)
 {
     Graphics *graphics = Boy::Environment::instance()->getGraphics();
     int screenWidth = graphics->getWidth();
@@ -110,25 +110,25 @@ BoyLib::Vector2 Camera::screenToWorld(const BoyLib::Vector2 &screenPos, float de
     float halfFovTan = tanf(mFov * 0.5f);
 
     BoyLib::Vector2 projectPos = BoyLib::Vector2(
-        screenPos.x - (screenWidth * 0.5f),
-        (screenHeight * 0.5f) - screenPos.y
+        screenCoord.x - (screenWidth * 0.5f),
+        (screenHeight * 0.5f) - screenCoord.y
     );
-    BoyLib::Vector2 relativePos = projectPos * depthFactor;
+    BoyLib::Vector2 relativePos = projectPos * depth;
 
     return relativePos + getPosition();
 }
 
-void Camera::tick(float dt)
+void Camera::tick(float timestep)
 {
     if (mVel != mTargetVel)
     {
         BoyLib::Vector2 diff = mTargetVel - mVel;
         float distance = diff.magnitude();
 
-        if (dt * 0.25f <= distance)
+        if (timestep * 0.25f <= distance)
         {
             BoyLib::Vector2 direction = diff.normalize();
-            mVel += diff.normalize() * dt * 0.25f;
+            mVel += diff.normalize() * timestep * 0.25f;
         }
         else
         {

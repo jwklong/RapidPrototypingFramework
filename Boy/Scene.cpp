@@ -8,7 +8,7 @@
 
 using namespace Boy;
 
-Scene::Scene(std::string id, bool withSimulation)
+Scene::Scene(std::string id, bool createSim)
 {
     mId = id;
 
@@ -28,7 +28,7 @@ Scene::Scene(std::string id, bool withSimulation)
     mBackgroundColor = 0x00000000;
     mListener = NULL;
 
-    if (withSimulation)
+    if (createSim)
     {
         mSimulation = new PhysBoy::World();
     } else
@@ -103,23 +103,23 @@ void Scene::removeObject(SceneObject *object)
     }
 }
 
-void Scene::handleDepthChanged(SceneObject* object)
+void Scene::handleDepthChanged(SceneObject* obj)
 {
-    auto it = std::find(mObjects.begin(), mObjects.end(), object);
+    auto it = std::find(mObjects.begin(), mObjects.end(), obj);
     if (it != mObjects.end()) {
         mObjects.erase(it);
     }
-    mObjects.push_back(object);
+    mObjects.push_back(obj);
     bubbleSortPass();
 }
 
-SceneObject *Scene::getObjectById(std::string id)
+SceneObject *Scene::getObjectById(const std::string &id)
 {
     assert(mObjectsById.find(id)!=mObjectsById.end());
     return mObjectsById[id];
 }
 
-SceneObject *Scene::getObjectAt(const BoyLib::Vector2 &point)
+SceneObject *Scene::getObjectAt(const BoyLib::Vector2 &screenPos)
 {
     SceneObject* bestMatch = nullptr;
 
@@ -132,9 +132,9 @@ SceneObject *Scene::getObjectAt(const BoyLib::Vector2 &point)
             continue;
         }
 
-        BoyLib::Vector2 targetPos = point;
+        BoyLib::Vector2 targetPos = screenPos;
         if (object->mContext == SceneObject::WORLD_COORDS) {
-            targetPos = mCamera->screenToWorld(point, object->mDepth);
+            targetPos = mCamera->screenToWorld(screenPos, object->mDepth);
         }
 
         if (object->contains(targetPos)) {
@@ -158,15 +158,15 @@ SceneObject *Scene::getObjectAt(const BoyLib::Vector2 &point)
     return bestMatch;
 }
 
-void Scene::addAutoBounds(float minX, float maxX, float minY, float maxY)
+void Scene::addAutoBounds(float minx, float maxx, float miny, float maxy)
 {
-    if (minX < mAutoMinX) mAutoMinX = minX;
-    if (maxX > mAutoMaxX) mAutoMaxX = maxX;
-    if (minY < mAutoMinY) mAutoMinY = minY;
-    if (maxY > mAutoMaxY) mAutoMaxY = maxY;
+    if (minx < mAutoMinX) mAutoMinX = minx;
+    if (maxx > mAutoMaxX) mAutoMaxX = maxx;
+    if (miny < mAutoMinY) mAutoMinY = miny;
+    if (maxy > mAutoMaxY) mAutoMaxY = maxy;
 }
 
-bool Scene::boundsContain(const BoyLib::Vector2 &pos)
+bool Scene::boundsContain(const BoyLib::Vector2 &point)
 {
     float minX = mMinX;
     float maxX = mMaxX;
@@ -187,10 +187,10 @@ bool Scene::boundsContain(const BoyLib::Vector2 &pos)
         }
     }
 
-    return (pos.x >= minX && pos.x <= maxX && pos.y >= minY && pos.y <= maxY);
+    return (point.x >= minX && point.x <= maxX && point.y >= minY && point.y <= maxY);
 }
 
-void Scene::ensureCameraInBounds(bool force)
+void Scene::ensureCameraInBounds(bool ignoreAutobounds)
 {
     if (Environment::instance()->isDebugEnabled())
     {
@@ -202,7 +202,7 @@ void Scene::ensureCameraInBounds(bool force)
     float minY = mMinY;
     float maxY = mMaxY;
 
-    if (mAutoboundsEnabled && !force)
+    if (mAutoboundsEnabled && !ignoreAutobounds)
     {
         if (mAutoMinX < mAutoMaxX)
         {
@@ -267,18 +267,18 @@ void Scene::ensureCameraInBounds(bool force)
         }
     }
 
-    if (!force) {
+    if (!ignoreAutobounds) {
         ensureCameraInBounds(true);
     }
 }
 
-void Scene::tick(float dt)
+void Scene::tick(float time, float stepSize, bool fastStep)
 {
-    if (dt != 0.0f)
+    if (time != 0.0f)
     {
         if (mSimulation)
         {
-            // mSimulation->step(dt);
+            // mSimulation->step(stepSize, fastStep);
         }
 
         for (int i = mObjects.size() - 1; i >= 0; i--) // go backwards
@@ -294,7 +294,7 @@ void Scene::tick(float dt)
     }
 }
 
-void Scene::draw(Graphics *graphics, float minDepth, float maxDepth, bool inclusive)
+void Scene::draw(Graphics *g, float minDepth, float maxDepth, bool inclusive)
 {
     for (int i = 0; i < mObjects.size(); i++)
     {
@@ -316,14 +316,14 @@ void Scene::draw(Graphics *graphics, float minDepth, float maxDepth, bool inclus
             {
                 if (object->isVisible())
                 {
-                    object->draw(graphics, mCamera);
+                    object->draw(g, mCamera);
                 }
             }
         }
     }
 }
 
-void Scene::drawOverlays(Graphics *graphics)
+void Scene::drawOverlays(Graphics *g)
 {
     for (int i = 0; i < mObjects.size(); i++)
     {
@@ -331,12 +331,12 @@ void Scene::drawOverlays(Graphics *graphics)
 
         if (object->mIsOverlay)
         {
-            object->draw(graphics, mCamera);
+            object->draw(g, mCamera);
         }
     }
 }
 
-void Scene::drawOverlays2(Graphics *graphics)
+void Scene::drawOverlays2(Graphics *g)
 {
     for (int i = 0; i < mObjects.size(); i++)
     {
@@ -344,7 +344,7 @@ void Scene::drawOverlays2(Graphics *graphics)
 
         if (object->mIsOverlay2)
         {
-            object->draw(graphics, mCamera);
+            object->draw(g, mCamera);
         }
     }
 }
