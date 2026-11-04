@@ -28,9 +28,9 @@ int Boy::httpQueueThreadProc(void *data)
     return 0;
 }
 
-bool Boy::sendHttpRequest(HttpRequest *request, HttpResponse *response)
+bool Boy::sendHttpRequest(HttpRequest *req, HttpResponse *response)
 {
-    envDebugLog("HTTP POST: %s?%s\n", request->getURL().c_str(), request->getParamString().c_str());
+    envDebugLog("HTTP POST: %s?%s\n", req->getURL().c_str(), req->getParamString().c_str());
 
     CURL *curl = curl_easy_init();
     if (curl == NULL)
@@ -40,27 +40,27 @@ bool Boy::sendHttpRequest(HttpRequest *request, HttpResponse *response)
 
     NetworkInterface::gCurrentResponse = response;
 
-    curl_easy_setopt(curl, CURLOPT_URL, request->getURL().c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, req->getURL().c_str());
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
-    std::string postData = request->getParamString();
+    std::string postData = req->getParamString();
     if (!postData.empty())
     {
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData.c_str());
     }
-    if (!request->mUseHttps)
+    if (!req->mUseHttps)
     {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     }
-    if (request->mTimeout > 0)
+    if (req->mTimeout > 0)
     {
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)request->mTimeout);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)req->mTimeout);
         curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     }
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Boy::curlWriteFunction);
 
     unsigned long startTime = clock();
-    request->mTimeStamp = startTime;
+    req->mTimeStamp = startTime;
 
     CURLcode res = curl_easy_perform(curl);
 
@@ -132,7 +132,7 @@ int NetworkInterface::processHttpRequest(HttpRequest *request)
     sendHttpRequest(request, &response);
     if (request->mHandler != NULL)
     {
-        request->mHandler->handleMessage(request, &response);
+        request->mHandler->handleHttpResponse(request, &response);
     }
 
     return 0;
@@ -195,14 +195,14 @@ void NetworkInterface::setReplaceEnabled(const std::string &tag, bool enabled)
     }
 }
 
-void NetworkInterface::upload(const std::string &url, const std::string &filename, const std::string &content)
+void NetworkInterface::upload(const std::string &url, const std::string &localFileName, const std::string &remoteFileName)
 {
     curl_httppost* formPost = NULL;
     curl_httppost* lastPtr = NULL;
     curl_formadd(&formPost, &lastPtr,
         CURLFORM_COPYNAME, "file",
-        CURLFORM_FILE, filename.c_str(),
-        CURLFORM_COPYCONTENTS, content.c_str(),
+        CURLFORM_FILE, localFileName.c_str(),
+        CURLFORM_FILENAME, remoteFileName.c_str(),
         CURLFORM_CONTENTTYPE, "text/plain",
         CURLFORM_END);
 

@@ -11,6 +11,6 @@ namespace Boy
 		HttpResponseHandler() {}
 		virtual ~HttpResponseHandler() {}
 
-		virtual void handleMessage(HttpRequest *request, HttpResponse *response) = 0;
+		virtual void handleHttpResponse(HttpRequest *request, HttpResponse *response) = 0;
 	};
 }
